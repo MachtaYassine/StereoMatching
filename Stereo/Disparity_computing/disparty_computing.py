@@ -1,27 +1,28 @@
 import numpy as np
 
 class DisparityComputation:
-    def __init__(self, cost_volume, dsi):
-        self.cost_volume = cost_volume
-        self.dsi = dsi
+    def __init__(self,strategy='winner-takes-all'):
+        self.strategy=strategy
+        
+        
 
-    def compute_disparity_map(self, strategy='winner-takes-all'):
-        if strategy == 'winner-takes-all':
-            return self.winner_takes_all()
-        elif strategy == 'semi-global-matching':
-            return self.semi_global_matching()
-        elif strategy == 'dynamic-programming':
-            return self.dynamic_programming()
-        elif strategy == 'graph-cuts':
+    def compute_disparity_map(self,cost_volume):
+        if self.strategy == 'winner-takes-all':
+            return self.winner_takes_all(cost_volume)
+        elif self.strategy == 'semi-global-matching':
+            return self.semi_global_matching(cost_volume)
+        elif self.strategy == 'dynamic-programming':
+            return self.dynamic_programming(cost_volume)
+        elif self.strategy == 'graph-cuts':
             return self.graph_cuts()
-        elif strategy == 'belief-propagation':
-            return self.belief_propagation()
+        elif self.strategy == 'belief-propagation':
+            return self.belief_propagation(cost_volume)
         else:
             raise ValueError("Invalid disparity computation strategy")
 
-    def winner_takes_all(self):
+    def winner_takes_all(self,cost_volume):
         # Winner-takes-all strategy (argmin over disparity levels)
-        disparity_map = np.argmin(self.cost_volume, axis=2)
+        disparity_map = np.argmin(cost_volume, axis=2)
         return disparity_map
 
     def semi_global_matching(self):

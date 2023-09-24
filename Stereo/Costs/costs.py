@@ -4,21 +4,21 @@ import numpy as np
 
 class StereoCost:
     
-    def pixelwise_AD(intensity_left, intensity_right):
-        # Compute the absolute difference between intensities
-        abs_diff = np.abs(intensity_left - intensity_right)
+    def SAD(intensites_left, intensities_right):
+        # we need to map Absolute differences on the to compute the AD element wise between these two arrays
+        return np.sum(np.abs(intensites_left-intensities_right))
 
-        return abs_diff
     
-    def pixelwise_SD(intensity_left, intensity_right):
+    def SSD(intensites_left, intensities_right):
         # Compute the squered difference between intensities
-        suqared_diff = (intensity_left - intensity_right)**2
 
-        return suqared_diff
+        return np/sum((intensites_left - intensities_right)**2)
+
     
-    def pixelwise_TAD(intensity_left, intensity_right,threshold):
+    def STAD(intensites_left, intensities_right,threshold):
         # Compute the Truncated absolute difference between intensities
-        return np.min(np.abs(intensity_left - intensity_right),threshold)
+        AD=np.abs(intensites_left - intensities_right)
+        return np.sum(np.where(AD>threshold,threshold,AD))
     
     def NCC(intensites_left, intensities_right):
         # Compute the Truncated absolute difference between intensities
