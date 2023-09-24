@@ -34,9 +34,10 @@ class StereoPipeline:
         disparity_space_image=self.aggregation_function.compute(self.cost_function,left_image, right_image, max_disparity)
         
         disparity_map=self.disparity_computation.compute_disparity_map(disparity_space_image)
+        
         if self.disparity_refinment:
             disparity_map=self.disparity_refinment(disparity_map)
-        DataVisualizer(self.image_name+'_'+self.details+"_disparity_map",disparity_map,None).save_array_as_image(side_to_side=False,plot_image=True)
+        DataVisualizer(self.image_name+'_'+self.details+"_disparity_map",disparity_map,None).save_array_as_image(side_to_side=False,plot_image=False)
         return disparity_map
     
     

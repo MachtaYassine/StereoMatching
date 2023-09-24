@@ -85,7 +85,8 @@ if __name__ == "__main__":
     
     data_loader = DataLoader(image_name)
     left_image, right_image = data_loader.load_images()
-    DataVisualizer(image_name,left_image,right_image).save_array_as_image(side_to_side=False)
+    DataVisualizer(image_name,left_image,right_image).save_array_as_image(side_to_side=True,testing=True)
+    DataVisualizer(image_name,left_image,None).save_array_as_image(side_to_side=False,testing=True)
     
             
     

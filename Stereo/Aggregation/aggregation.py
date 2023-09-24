@@ -25,10 +25,8 @@ class fixed_window:
                     window_left=left_image[y-self.window_size//2:y+self.window_size//2+1,x-self.window_size//2:x+self.window_size//2+1]
                     window_right=right_image[y-self.window_size//2:y+self.window_size//2+1,x-self.window_size//2-d:x+self.window_size//2+1-d]
                     # print(window_right.shape,window_left.shape)
-                    if window_right.shape==window_left.shape:
-                        disparity_space_image[y,x,d]=cost_fuction(window_left,window_right)
-                    else:   
-                        disparity_space_image[y,x,d]=0
+                    disparity_space_image[y,x,d]=cost_fuction(window_left,window_right)
+                    
         
     
         return disparity_space_image
