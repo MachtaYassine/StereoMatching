@@ -52,7 +52,7 @@ class DataVisualizer:
             save_path=testing_path
         else:
             save_path=results_path
-        if left_image is not None and right_image is not None:
+        if self.array_left is not None and self.array_right is not None:
             if side_to_side:
                 #Create a Matplotlib figure and axis
                 fig, ax = plt.subplots(1,2)
@@ -67,10 +67,12 @@ class DataVisualizer:
                 save_fig(self.array_left,self.name+'_left',save_path,plot_image)
                 save_fig(self.array_right,self.name+'_right',save_path,plot_image)
                 
-        elif left_image is not None:
+        elif self.array_left is not None:
             print("Single image mode")
             save_fig(self.array_left,self.name,save_path,plot_image)
             
+        else:
+            print("No image to save")
     
     
     

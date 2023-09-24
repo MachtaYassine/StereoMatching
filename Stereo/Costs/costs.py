@@ -12,10 +12,10 @@ class StereoCost:
     def SSD(intensites_left, intensities_right):
         # Compute the squered difference between intensities
 
-        return np/sum((intensites_left - intensities_right)**2)
+        return np.sum((intensites_left - intensities_right)**2)
 
     
-    def STAD(intensites_left, intensities_right,threshold):
+    def STAD(intensites_left, intensities_right,threshold=5):
         # Compute the Truncated absolute difference between intensities
         AD=np.abs(intensites_left - intensities_right)
         return np.sum(np.where(AD>threshold,threshold,AD))
