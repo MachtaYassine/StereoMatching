@@ -1,5 +1,11 @@
 import numpy as np
 from tqdm import tqdm
+
+
+
+def log(text):
+    with open("log.txt", "a") as file:
+        file.write(text + "\n")
 class DisparityComputation:
     '''
     We know most of these are energy minimization problems so maybe we can group them ?
@@ -32,13 +38,13 @@ class DisparityComputation:
         return disparity_map
 
 
-    def dynamic_programming(cost_volume, occlusion_constant):
+    def dynamic_programming(self,cost_volume):
         '''
         not tried yet
         '''
         # Define parameters
         nRow, nCol,_ = cost_volume.shape
-        occ = 0.0009  # Occlusion cost
+        occ =  350 # Occlusion cost
 
         # Initialize arrays for cost, disparity, and path tracking
         C = np.zeros((nCol, nCol))
@@ -46,7 +52,7 @@ class DisparityComputation:
         displeft = np.zeros((nRow, nCol))
         dispright = np.zeros((nRow, nCol))
 
-        for y in range(nRow):
+        for y in tqdm(range(nRow)):
             for i in range(1, nCol):
                 C[i, 0] = i * occ
 
@@ -55,19 +61,23 @@ class DisparityComputation:
 
             for i in range(1, nCol):
                 for j in range(1, nCol):
-                    temp = cost_volume[y,i,np.abs(i - j)]
-                    min1 = C[i - 1, j - 1] + temp
-                    min2 = C[i - 1, j] + occ
-                    min3 = C[i, j - 1] + occ
-                    cmin = min(min1, min2, min3)
-                    C[i, j] = cmin  # Cost Matrix
-
-                    if cmin == min1:
-                        M[i, j] = 1  # Path Tracker
-                    elif cmin == min2:
-                        M[i, j] = 2
-                    elif cmin == min3:
-                        M[i, j] = 3
+                    if np.abs(i - j) < 96:
+                        temp = cost_volume[y,i,np.abs(i - j)]
+                        min1 = C[i - 1, j - 1] + temp
+                        min2 = C[i - 1, j] + occ
+                        min3 = C[i, j - 1] + occ
+                        cmin = min(min1, min2, min3)
+                        C[i, j] = cmin  # Cost Matrix
+                        
+                        if cmin == min1:
+                            M[i, j] = 1  # Path Tracker
+                            # log(f"diagonal cost is the min {min1} and the others {min2} {min3}")
+                        elif cmin == min2:
+                            M[i, j] = 2
+                            # log(f"left cost is the min {min2} and the others {min1} {min3}")
+                        elif cmin == min3:
+                            M[i, j] = 3
+                            # log(f"right cost is the min {min3} and the others {min1} {min2}")
 
             i = nCol - 1
             j = nCol - 1
@@ -78,14 +88,22 @@ class DisparityComputation:
                     i -= 1
                     j -= 1
                 elif M[i, j] == 2:
-                    displeft[y, i] = np.nan
+                    #find the closes non occluded object to the left and give the same disparity
+                    displeft[y, i] =np.nan
                     i -= 1
                 elif M[i, j] == 3:
-                    dispright[y, j] = np.nan
+                    if j!= nCol-1:
+                        dispright[y, j] = dispright[y, j+1]
+                    else:
+                        dispright[y, j] =np.nan
                     j -= 1
 
-        
+            for i in range(1,nCol):
+                if np.isnan(displeft[y,i]):
+                    displeft[y,i] = displeft[y,i-1]
 
+        return displeft,dispright
+    
     def graph_cuts(self):
         # Implement the graph cuts-based disparity computation algorithm
         # You may need to use a library like PyMaxflow or implement the algorithm from scratch
