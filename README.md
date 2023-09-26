@@ -6,6 +6,9 @@ Experimenting with stereo matching
 ## File and folder structure
 
 - data folder: contains images and depth results
+    - My results are not optimal, have a lot of noise and are slow I'll work on 
+        - reducing noise
+        - optimizing computing time
 - Stereo folder contains my attmpt at trying to organize the "taxonomy" of stereo in classes for an easy pipeline (It's rushed)
     - Costs: different cost functions
     - Aggregation: only fixed window for now
