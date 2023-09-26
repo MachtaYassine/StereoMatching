@@ -1,6 +1,6 @@
 import numpy as np
 from tqdm import tqdm
-
+from numba import jit
 
 
 def log(text):
@@ -37,22 +37,24 @@ class DisparityComputation:
         disparity_map = np.argmin(cost_volume, axis=2)
         return disparity_map
 
-
+    @jit(nopython=True,parallel=True)
     def dynamic_programming(self,cost_volume):
         '''
         not tried yet
         '''
         # Define parameters
         nRow, nCol,_ = cost_volume.shape
-        occ =  350 # Occlusion cost
+        occ =  1200 # Occlusion cost
 
         # Initialize arrays for cost, disparity, and path tracking
-        C = np.zeros((nCol, nCol))
-        M = np.ones_like(C)
+        
+        
         displeft = np.zeros((nRow, nCol))
         dispright = np.zeros((nRow, nCol))
 
         for y in tqdm(range(nRow)):
+            C = np.zeros((nCol, nCol))
+            M = np.ones_like(C)
             for i in range(1, nCol):
                 C[i, 0] = i * occ
 
@@ -102,6 +104,7 @@ class DisparityComputation:
                 if np.isnan(displeft[y,i]):
                     displeft[y,i] = displeft[y,i-1]
 
+        log(f'cost')
         return displeft,dispright
     
     def graph_cuts(self):

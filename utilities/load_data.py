@@ -53,6 +53,7 @@ class DataVisualizer:
         else:
             save_path=results_path
         if self.array_left is not None and self.array_right is not None:
+            print("two image mode")
             if side_to_side:
                 #Create a Matplotlib figure and axis
                 fig, ax = plt.subplots(1,2)
