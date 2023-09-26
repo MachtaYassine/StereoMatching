@@ -1,6 +1,10 @@
 import numpy as np
 from tqdm import tqdm
 class DisparityComputation:
+    '''
+    We know most of these are energy minimization problems so maybe we can group them ?
+
+    '''
     def __init__(self,strategy='winner-takes-all'):
         self.strategy=strategy
         self.P1,self.P2=0.025,0.5
@@ -27,15 +31,60 @@ class DisparityComputation:
         disparity_map = np.argmin(cost_volume, axis=2)
         return disparity_map
 
-    def semi_global_matching(self):
-        # Implement the Semi-Global Matching (SGM) algorithm here
-        # You may need to create a separate class for SGM
-        pass
 
-    def dynamic_programming(self):
-        # Implement the dynamic programming-based disparity computation algorithm
-        # This may involve creating a cost-to-go table and backtracking to find disparities
-        pass
+    def dynamic_programming(cost_volume, occlusion_constant):
+        '''
+        not tried yet
+        '''
+        # Define parameters
+        nRow, nCol,_ = cost_volume.shape
+        occ = 0.0009  # Occlusion cost
+
+        # Initialize arrays for cost, disparity, and path tracking
+        C = np.zeros((nCol, nCol))
+        M = np.ones_like(C)
+        displeft = np.zeros((nRow, nCol))
+        dispright = np.zeros((nRow, nCol))
+
+        for y in range(nRow):
+            for i in range(1, nCol):
+                C[i, 0] = i * occ
+
+            for j in range(1, nCol):
+                C[0, j] = j * occ
+
+            for i in range(1, nCol):
+                for j in range(1, nCol):
+                    temp = cost_volume[y,i,np.abs(i - j)]
+                    min1 = C[i - 1, j - 1] + temp
+                    min2 = C[i - 1, j] + occ
+                    min3 = C[i, j - 1] + occ
+                    cmin = min(min1, min2, min3)
+                    C[i, j] = cmin  # Cost Matrix
+
+                    if cmin == min1:
+                        M[i, j] = 1  # Path Tracker
+                    elif cmin == min2:
+                        M[i, j] = 2
+                    elif cmin == min3:
+                        M[i, j] = 3
+
+            i = nCol - 1
+            j = nCol - 1
+            while i != 0 and j != 0:
+                if M[i, j] == 1:
+                    displeft[y, i] = abs(i - j)  # Disparity Image in Left Image coordinates
+                    dispright[y, j] = abs(j - i)  # Disparity Image in Right Image coordinates
+                    i -= 1
+                    j -= 1
+                elif M[i, j] == 2:
+                    displeft[y, i] = np.nan
+                    i -= 1
+                elif M[i, j] == 3:
+                    dispright[y, j] = np.nan
+                    j -= 1
+
+        
 
     def graph_cuts(self):
         # Implement the graph cuts-based disparity computation algorithm
@@ -47,7 +96,11 @@ class DisparityComputation:
         # This may involve message passing between neighboring pixels
         pass
     
+    
     def SemiGlobalMatching(self,cost_volume):
+        '''
+        This implementation is too slow and i'm not sure of the results
+        '''
         height, width, max_disparity = cost_volume.shape
         num_directions = 8  # Number of aggregation directions (typically 8 in SGM)
         

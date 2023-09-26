@@ -1,2 +1,4 @@
 # Ignore .egg-info directories and files
 *.egg-info/
+existing_repo/
+build/
