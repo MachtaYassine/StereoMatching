@@ -3,6 +3,16 @@ from tqdm import tqdm
 from numba import jit
 
 
+def log_array(name,array):
+    with open(name+'.txt', "w") as file:
+    # Iterate through the elements of the array and write them to the file
+        for i,element in enumerate(array):
+            if len(array.shape)==3:
+                for j,element2 in enumerate(element):
+                    file.write(f'all disparity costs for coordinate {i,j} : {element2}' + "\n")
+            else:
+                file.write(f'values in this row {i} : {element}' + "\n") 
+
 def log(text):
     with open("log.txt", "a") as file:
         file.write(text + "\n")
@@ -37,14 +47,14 @@ class DisparityComputation:
         disparity_map = np.argmin(cost_volume, axis=2)
         return disparity_map
 
-    @jit(nopython=True,parallel=True)
+    # @jit(nopython=True,parallel=True)
     def dynamic_programming(self,cost_volume):
         '''
         not tried yet
         '''
         # Define parameters
         nRow, nCol,_ = cost_volume.shape
-        occ =  1200 # Occlusion cost
+        occ =  100 # Occlusion cost
 
         # Initialize arrays for cost, disparity, and path tracking
         
@@ -54,16 +64,16 @@ class DisparityComputation:
 
         for y in tqdm(range(nRow)):
             C = np.zeros((nCol, nCol))
-            M = np.ones_like(C)
+            M = np.zeros_like(C)
             for i in range(1, nCol):
                 C[i, 0] = i * occ
-
-            for j in range(1, nCol):
-                C[0, j] = j * occ
+                C[0, i] = i * occ
+            C[0,0]=cost_volume[y,0,0]
+                
 
             for i in range(1, nCol):
                 for j in range(1, nCol):
-                    if np.abs(i - j) < 96:
+                    if np.abs(i-j)<96:
                         temp = cost_volume[y,i,np.abs(i - j)]
                         min1 = C[i - 1, j - 1] + temp
                         min2 = C[i - 1, j] + occ
@@ -80,7 +90,14 @@ class DisparityComputation:
                         elif cmin == min3:
                             M[i, j] = 3
                             # log(f"right cost is the min {min3} and the others {min1} {min2}")
-
+                    else:
+                        if i>j:
+                            C[i,j]=C[i,j-1]+occ
+                        else:
+                            C[i,j]=C[i-1,j]+occ
+                        
+            
+            
             i = nCol - 1
             j = nCol - 1
             while i != 0 and j != 0:
@@ -104,7 +121,8 @@ class DisparityComputation:
                 if np.isnan(displeft[y,i]):
                     displeft[y,i] = displeft[y,i-1]
 
-        log(f'cost')
+        # log_array('M',M)
+        # log_array('C',C)
         return displeft,dispright
     
     def graph_cuts(self):
