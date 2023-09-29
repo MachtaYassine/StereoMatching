@@ -26,13 +26,13 @@ class DisparityComputation:
         self.P1,self.P2=0.025,0.5
         
 
-    def compute_disparity_map(self,cost_volume):
+    def compute_disparity_map(self,cost_volume,occ=100,disparity=96):
         if self.strategy == 'winner-takes-all':
             return self.winner_takes_all(cost_volume)
         elif self.strategy == 'semi-global-matching':
             return self.semi_global_matching(cost_volume)
         elif self.strategy == 'dynamic-programming':
-            return self.dynamic_programming(cost_volume)
+            return self.dynamic_programming(cost_volume,occ,disparity)
         elif self.strategy == 'graph-cuts':
             return self.graph_cuts()
         elif self.strategy == 'belief-propagation':
@@ -48,13 +48,11 @@ class DisparityComputation:
         return disparity_map
 
     # @jit(nopython=True,parallel=True)
-    def dynamic_programming(self,cost_volume):
-        '''
-        not tried yet
-        '''
+    def dynamic_programming(self,cost_volume,occ,disparity):
+        
         # Define parameters
         nRow, nCol,_ = cost_volume.shape
-        occ =  100 # Occlusion cost
+    
 
         # Initialize arrays for cost, disparity, and path tracking
         
@@ -73,7 +71,7 @@ class DisparityComputation:
 
             for i in range(1, nCol):
                 for j in range(1, nCol):
-                    if np.abs(i-j)<96:
+                    if np.abs(i-j)<disparity:
                         temp = cost_volume[y,i,np.abs(i - j)]
                         min1 = C[i - 1, j - 1] + temp
                         min2 = C[i - 1, j] + occ

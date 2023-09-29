@@ -29,8 +29,9 @@ class StereoPipeline:
                  disparity_computation,
                  disparity_refinement,
                  max_disparity=16,
+                 occlusion=90,
                  dataloader=DataLoader,
-                 datavisualizer=DataVisualizer):
+                 datavisualizer=DataVisualizer,):
         
 
         self.image_name = image_name
@@ -41,7 +42,7 @@ class StereoPipeline:
         self.disparity_refinment = disparity_refinement
         self.datavisualizer=datavisualizer
         self.max_disparity=max_disparity
-        
+        self.occ=occlusion
     def compute_disparity_map(self):
         left_image,right_image=self.dataloader(self.image_name).load_images()
         
@@ -58,14 +59,15 @@ class StereoPipeline:
         return disparity_map
     
     def compute_disparity_with_dp(self):
+        
         left_image,right_image=self.dataloader(self.image_name).load_images()
         disparity_space_image=self.aggregation_function.compute(self.cost_function,left_image, right_image, self.max_disparity)
         log_array(self.image_name+'_disparity_space_image_DP',disparity_space_image)
-        disparity_left , disparity_right=self.disparity_computation.compute_disparity_map(disparity_space_image)
+        disparity_left , disparity_right=self.disparity_computation.compute_disparity_map(disparity_space_image,self.occ,self.max_disparity)
         log_array(self.image_name+'_disparity_left_DP',disparity_left)
         log_array(self.image_name+'_disparity_right_DP',disparity_right)
         print(disparity_left.shape)
-        method_info=self.cost_function.__name__+'_'+self.aggregation_function.name+'_'+self.disparity_computation.strategy+'_'+str(self.max_disparity)
+        method_info=self.cost_function.__name__+'_'+self.aggregation_function.name+'_'+self.disparity_computation.strategy+'_'+str(self.max_disparity)+'_'+ str(self.occ)
         DataVisualizer(self.image_name+'_'+method_info+"_disparity_map",disparity_left,disparity_right).save_array_as_image(side_to_side=False,plot_image=False)
         return disparity_left
     
