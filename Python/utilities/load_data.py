@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 
 left_data_path = "data/images_left"  
 right_data_path = "data/images_right"
-results_path = "data/results"
-testing_path='utilities/Dataloading_testing'
+results_path = "data/results_python"
+testing_path='Python/utilities/Dataloading_testing'
 
 
 class DataLoader:
@@ -83,7 +83,7 @@ class DataVisualizer:
 # Testing the DataLoader class    
 if __name__ == "__main__":
     image_name = "Road"  # Image name
-    
+    print(f"current path is {os.getcwd()}")
     data_loader = DataLoader(image_name)
     left_image, right_image = data_loader.load_images()
     DataVisualizer(image_name,left_image,right_image).save_array_as_image(side_to_side=True,testing=True)
