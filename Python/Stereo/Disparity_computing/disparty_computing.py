@@ -4,7 +4,7 @@ from numba import jit
 
 
 def log_array(name,array):
-    with open(name+'.txt', "w") as file:
+    with open('Python/logs/'+name+'.txt', "w") as file:
     # Iterate through the elements of the array and write them to the file
         for i,element in enumerate(array):
             if len(array.shape)==3:

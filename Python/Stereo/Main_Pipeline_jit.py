@@ -9,7 +9,7 @@ from numba import jit
 
 
 def log_array(name,array):
-    with open(name+'.txt', "w") as file:
+    with open('Python/logs/'+name+'.txt', "w") as file:
     # Iterate through the elements of the array and write them to the file
         for element in array:
             file.write(f'values in this row {np.unique(element)}' + "\n") 
@@ -54,7 +54,7 @@ class StereoPipeline:
 if __name__=='__main__':
     image_name='chess'
     cost_function=StereoCost.SAD
-    aggregation_function=fixed_window_5
+    aggregation_function=fixed_window
     disparity_computation=DisparityComputation()
     disparity_refinement=None
     StereoPipeline(image_name,
